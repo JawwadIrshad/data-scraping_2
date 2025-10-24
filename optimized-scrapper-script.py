@@ -11,7 +11,7 @@ from functools import wraps
 import re
 from typing import List, Dict, Any
 from concurrent.futures import ThreadPoolExecutor
-from notify_slack import notify_slack
+# from notify_slack import notify_slack
 
 # === PERFORMANCE OPTIMIZATIONS ===
 CONCURRENT_PAGES = 10  # Number of browser tabs to use simultaneously
@@ -431,7 +431,7 @@ async def scrape_async_optimized():
         f"Time: *{total_duration/60:.1f} minutes*\n"
         f"Speed: *{total_processed/(total_duration/60):.1f} URLs/min*"
     )
-    notify_slack(message)
+    # notify_slack(message)
 
 # === Google Sheets functions (keep your existing ones) ===
 @exponential_backoff(retries=2, base_delay=1)
@@ -470,10 +470,13 @@ async def main():
 if __name__ == "__main__":
     # For even better performance, use uvloop if available
     try:
-        import uvloop
-        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-        print("⚡ Using uvloop for maximum performance")
-    except ImportError:
+        import importlib
+        # Check if uvloop is available without triggering a static import error
+        if importlib.util.find_spec("uvloop") is not None:
+            uvloop = importlib.import_module("uvloop")
+            asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+            print("⚡ Using uvloop for maximum performance")
+    except Exception:
         pass
     
     asyncio.run(main())
